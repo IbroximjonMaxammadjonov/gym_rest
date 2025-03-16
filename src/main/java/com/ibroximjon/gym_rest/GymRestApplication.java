@@ -8,6 +8,7 @@ public class GymRestApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(GymRestApplication.class, args);
+
     }
 
 }

@@ -98,4 +98,91 @@ class UserCommand {
             return "Failed to create model '" + modelName + "'. Error: " + e.getMessage();
         }
     }
+
+    @ShellMethod(key = "create service", value = "Creates a new service class inside the model package")
+    public String createService(@ShellOption String serviceName) {
+        // `model` package yo‘li
+        String modelPackagePath = Paths.get(basePackagePath, "service").toString();
+        File modelPackage = new File(modelPackagePath);
+        if (!modelPackage.exists()) {
+            modelPackage.mkdirs();
+        }
+
+        // Foydalanuvchi kiritgan class fayli
+        String filePath = Paths.get(modelPackagePath, serviceName + ".java").toString();
+        File modelFile = new File(filePath);
+
+        if (modelFile.exists()) {
+            return "Model '" + serviceName + "' already exists in model package.";
+        }
+
+        // Java entity class'ni yozish
+        String packageName = GymRestApplication.class.getPackage().getName() + ".service";
+        String classContent = """
+            package %s;
+
+            import jakarta.persistence.*;
+            import org.springframework.stereotype.Service;
+
+            @Service
+            public class %s {
+                private UserRepository userRepository;
+                
+                public %s(UserRepository userRepository) {
+                            this.userRepository = userRepository;
+                        }
+
+               
+            }
+            """.formatted(packageName, serviceName, serviceName, serviceName);
+
+        try (FileWriter writer = new FileWriter(modelFile)) {
+            writer.write(classContent);
+            return "Service '" + serviceName + "' successfully created at " + filePath;
+        } catch (IOException e) {
+            return "Failed to create service '" + serviceName + "'. Error: " + e.getMessage();
+        }
+    }
+
+    @ShellMethod(key = "create repository", value = "Creates a new repository interface inside the model package")
+    public String createRepository(@ShellOption String repositoryName) {
+
+        String modelPackagePath = Paths.get(basePackagePath, "repository").toString();
+        File modelPackage = new File(modelPackagePath);
+        if (!modelPackage.exists()) {
+            modelPackage.mkdirs();
+        }
+
+        // Foydalanuvchi kiritgan class fayli
+        String filePath = Paths.get(modelPackagePath, repositoryName + ".java").toString();
+        File modelFile = new File(filePath);
+
+        if (modelFile.exists()) {
+            return "Repository '" + repositoryName + "' already exists in repository package.";
+        }
+
+
+        String packageName = GymRestApplication.class.getPackage().getName() + ".repository";
+        String classContent = """
+            package %s;
+
+            import jakarta.persistence.*;
+            import org.springframework.stereotype.Service;
+
+            @Service
+            public interface %s extends JpaRepository<User, Long>{
+                private UserRepository userRepository;
+            
+
+              
+            }
+            """.formatted(packageName, repositoryName, repositoryName, repositoryName);
+
+        try (FileWriter writer = new FileWriter(modelFile)) {
+            writer.write(classContent);
+            return "Repository '" + repositoryName + "' successfully created at " + filePath;
+        } catch (IOException e) {
+            return "Failed to create repository '" + repositoryName + "'. Error: " + e.getMessage();
+        }
+    }
 }
